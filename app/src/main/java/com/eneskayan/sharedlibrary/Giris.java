@@ -22,6 +22,8 @@ public class Giris extends AppCompatActivity {
     EditText emailText;
     EditText parolaText;
 
+    //sadece Log-in işlemlerini içermektedir.
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

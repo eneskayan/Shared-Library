@@ -4,10 +4,14 @@ import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -20,15 +24,15 @@ import java.util.HashMap;
 
 public class Feed extends AppCompatActivity {
 
-    ListView listView;
+//    ListView listView;
     PostClass adapter;
     FirebaseDatabase firebaseDatabase;
     DatabaseReference myRef;
-    ArrayList<String> userbaslikFromFB;
-    ArrayList<String> userimageFromFB;
-    ArrayList<String> useremailFromFB;
 
+    private ArrayList<String> mBaslik = new ArrayList<>();
+    private ArrayList<String> mFotoUrl = new ArrayList<>();
 
+    //kitap ekleme menüsü
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater menuInflater = getMenuInflater();
@@ -36,7 +40,7 @@ public class Feed extends AppCompatActivity {
 
         return super.onCreateOptionsMenu(menu);
     }
-
+    //kitap ekleme menüsünden intentle diğer UploadBook sayfasına gitme
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
 
@@ -44,55 +48,62 @@ public class Feed extends AppCompatActivity {
             Intent intent = new Intent(getApplicationContext(), UploadBook.class);
             startActivity(intent);
         }
-
-
         return super.onOptionsItemSelected(item);
     }
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_feed);
 
+//        listView = findViewById(R.id.listView);
 
-        listView = findViewById(R.id.listView);
-
-        useremailFromFB = new ArrayList<String>();
-        userbaslikFromFB = new ArrayList<String>();
-        userimageFromFB = new ArrayList<String>();
+        mBaslik = new ArrayList<String>();
+        mFotoUrl = new ArrayList<String>();
 
         firebaseDatabase = FirebaseDatabase.getInstance();
         myRef = firebaseDatabase.getReference();
 
-        adapter = new PostClass(userbaslikFromFB,userimageFromFB,useremailFromFB,this);
-
-        listView.setAdapter(adapter);
+//        adapter = new PostClass(userbaslikFromFB,userimageFromFB,useremailFromFB,this);
+//        listView.setAdapter(adapter);
         getDataFromDatabase();
     }
 
+// başlığı ve image url'ini database'e gönderme
     public void getDataFromDatabase(){
         DatabaseReference newReferance = firebaseDatabase.getReference("Posts");
         newReferance.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
 
+// RecyclerView in çağrıldması
+                initRecyclerView();
+
                 for (DataSnapshot ds: dataSnapshot.getChildren()){
                     HashMap<String,String> hashMap = (HashMap<String, String>) ds.getValue();
 
-                    useremailFromFB.add(hashMap.get("useremail"));
-                    userbaslikFromFB.add(hashMap.get("baslik"));
-                    userimageFromFB.add(hashMap.get("downloadurl"));
-                    adapter.notifyDataSetChanged();
+                    mBaslik.add(hashMap.get("baslik"));
+                    mFotoUrl.add(hashMap.get("downloadurl"));
+                    //adapter.notifyDataSetChanged();
                 }
             }
 
             @Override
             public void onCancelled(@NonNull DatabaseError databaseError) {
-
+                Toast.makeText(Feed.this, "İptal edildi.", Toast.LENGTH_SHORT).show();
             }
         });
 
     }
 
+    private  void initRecyclerView(){
 
+        LinearLayoutManager layoutManager = new LinearLayoutManager(this,LinearLayoutManager.HORIZONTAL,false);
+        RecyclerView recyclerView = findViewById(R.id.recyclerView);
+        recyclerView.setLayoutManager(layoutManager);
+        PostClass adapter = new PostClass(this, mBaslik,mFotoUrl);
+        recyclerView.setAdapter(adapter);
+
+    }
 }
