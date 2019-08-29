@@ -2,6 +2,7 @@ package com.eneskayan.sharedlibrary;
 
 import android.content.Intent;
 import android.support.annotation.NonNull;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
@@ -10,6 +11,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.ListView;
 import android.widget.Toast;
 
@@ -31,6 +33,8 @@ public class Feed extends AppCompatActivity {
 
     private ArrayList<String> mBaslik = new ArrayList<>();
     private ArrayList<String> mFotoUrl = new ArrayList<>();
+
+
 
     //kitap ekleme menüsü
     @Override
@@ -57,10 +61,25 @@ public class Feed extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_feed);
 
+        //floating action button settings
+        final FloatingActionButton floatingActionButton = findViewById(R.id.fab_1);
+        floatingActionButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(v==floatingActionButton){
+                    Intent intent = new Intent(getApplicationContext(), UploadBook.class);
+                    startActivity(intent);
+                }
+                else{
+
+                }
+            }
+        });
+
 //        listView = findViewById(R.id.listView);
 
-        mBaslik = new ArrayList<String>();
-        mFotoUrl = new ArrayList<String>();
+     //   mBaslik = new ArrayList<String>();
+    //    mFotoUrl = new ArrayList<String>();
 
         firebaseDatabase = FirebaseDatabase.getInstance();
         myRef = firebaseDatabase.getReference();
@@ -72,21 +91,44 @@ public class Feed extends AppCompatActivity {
 
 // başlığı ve image url'ini database'e gönderme
     public void getDataFromDatabase(){
-        DatabaseReference newReferance = firebaseDatabase.getReference("Posts");
+        final DatabaseReference newReferance = firebaseDatabase.getReference("Posts");
         newReferance.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
 
 // RecyclerView in çağrıldması
-                initRecyclerView();
+/*
+                for (DataSnapshot ds : dataSnapshot.getChildren()) {
+                    HashMap<String, String> hashMap = (HashMap<String, String>) ds.getValue();
 
-                for (DataSnapshot ds: dataSnapshot.getChildren()){
-                    HashMap<String,String> hashMap = (HashMap<String, String>) ds.getValue();
+                    if(hashMap.get("baslik").equals("Roman")){
+                        initRecyclerView();
+                        mBaslik.add(hashMap.get("baslik"));
+                        mFotoUrl.add(hashMap.get("downloadurl"));
+                        //adapter.notifyDataSetChanged();
+                    }
+                    else if(hashMap.get("baslik").equals("Hikaye")){
+                        initRecyclerView2();
+                        mBaslik.add(hashMap.get("baslik"));
+                        mFotoUrl.add(hashMap.get("downloadurl"));
+                        //adapter.notifyDataSetChanged();
+                    }
+                        */
+                        for (DataSnapshot ds : dataSnapshot.getChildren()) {
+                            HashMap<String, String> hashMap = (HashMap<String, String>) ds.getValue();
 
-                    mBaslik.add(hashMap.get("baslik"));
-                    mFotoUrl.add(hashMap.get("downloadurl"));
-                    //adapter.notifyDataSetChanged();
-                }
+                            mBaslik.add(hashMap.get("baslik"));
+                            mFotoUrl.add(hashMap.get("downloadurl"));
+
+                            if("Roman".equals(hashMap.get("baslik"))){
+                                initRecyclerView();
+                            }
+                            else if("Hikaye".equals(hashMap.get("baslik"))){
+                                initRecyclerView2();
+
+                            }
+
+                        }
             }
 
             @Override
@@ -104,6 +146,17 @@ public class Feed extends AppCompatActivity {
         recyclerView.setLayoutManager(layoutManager);
         PostClass adapter = new PostClass(this, mBaslik,mFotoUrl);
         recyclerView.setAdapter(adapter);
+    }
+
+    private  void initRecyclerView2(){
+
+        LinearLayoutManager layoutManager = new LinearLayoutManager(this,LinearLayoutManager.HORIZONTAL,false);
+        RecyclerView recyclerView2 = findViewById(R.id.recyclerView2);
+        recyclerView2.setLayoutManager(layoutManager);
+        PostClass adapter2 = new PostClass(this, mBaslik,mFotoUrl);
+        recyclerView2.setAdapter(adapter2);
 
     }
+
+
 }

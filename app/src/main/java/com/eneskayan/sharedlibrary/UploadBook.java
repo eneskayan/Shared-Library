@@ -46,28 +46,37 @@ public class UploadBook extends AppCompatActivity {
 
     //EditText kitapbaslikId;
     ImageView kitapgörseliId;
+    EditText kitapTuru;
     FirebaseDatabase firebaseDatabase;
-    DatabaseReference myRef;
+    static DatabaseReference myRef;
     private FirebaseAuth mAut;
     private StorageReference mStorageRef;
     Uri selectedImage;
     Spinner spinner1;
 
+
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_upload_book);
-        //kitapbaslikId = findViewById(R.id.kitapbaslikId);
         kitapgörseliId = findViewById(R.id.kitapgörseliId);
+        kitapTuru = findViewById(R.id.bookType);
 
         firebaseDatabase =FirebaseDatabase.getInstance();
         myRef = firebaseDatabase.getReference();
         mAut = FirebaseAuth.getInstance();
         mStorageRef = FirebaseStorage.getInstance().getReference();
-        spinner1 = findViewById(R.id.spinner1);
+
+
+
+
+
+//        spinner1 = findViewById(R.id.spinner1);
 
         //Spinner settings :)
-
+/*
         String[] kitap_türleri = new String[]{
                 "Kitap Türünü Seçiniz...",
                 "Roman",
@@ -134,6 +143,9 @@ public class UploadBook extends AppCompatActivity {
 
             }
         });
+*/
+
+
     }
 
 
@@ -160,7 +172,7 @@ public class UploadBook extends AppCompatActivity {
                         // username, başlık
                         String userEmail = user.getEmail();
                         //String baslik = kitapbaslikId.getText().toString();
-                        String baslik1 = spinner1.getSelectedItem().toString();
+                        String baslik1 = kitapTuru.getText().toString();
                         UUID uuid1 =UUID.randomUUID();
                         String uuidString = uuid1.toString();
                         HashMap<String, Object> postData = new HashMap<>();
@@ -191,7 +203,14 @@ public class UploadBook extends AppCompatActivity {
         });
 
     }
+/*
+    public static String getBookName(){
+        boolean a = myRef.child("Posts").child().child().getDatabas;
 
+        String baslik2 = kitapTuru.getText().toString();
+        return baslik2;
+    }
+*/
     public void GörselEkle(View view){
         if(ContextCompat.checkSelfPermission(this,Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED){
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},1);
